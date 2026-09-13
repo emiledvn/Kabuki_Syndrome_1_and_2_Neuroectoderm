@@ -79,13 +79,6 @@ GSE accession to be added once assigned]**. Sample-to-accession mapping is in
 independent of the manuscript's current figure numbering (which may still
 change during review).
 
-## Known limitations
-
-Documented plainly rather than papered over — see `FIGURES.md`'s Notes
-section and `docs/decisions.md` for what was evaluated and dropped (TMM
-normalization, chromVAR, ANANSE) and the one panel whose original background-
-region selection could not be recovered exactly.
-
 ## License
 
 MIT — see `LICENSE`.

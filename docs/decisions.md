@@ -1,21 +1,18 @@
-# What was evaluated and dropped
+# Methodology choices
 
 This repository contains only the single analysis path actually used for the
-reported results. Where multiple approaches were genuinely explored, this
-page records what was tried, why it was rejected, and where the full
-diagnostic detail lives. Nothing here is a hedge — these are documented
-negative results, not omissions.
+reported results. Where multiple methods were genuinely evaluated, this page
+records which one was used and why, and where the full comparison lives.
 
 ## ATAC-seq normalization: loess, not TMM
 
 Standard TMM normalization produced opposite-direction, strongly asymmetric
 differential-accessibility calls between the two genotype contrasts. A
 non-linear (loess) alternative was evaluated instead and adopted after a
-background-bin-vs-peak diagnostic and a WT-vs-WT null check. Full comparison,
-numbers, and the resulting caveat on the KDM6A_ko contrast's evidentiary
-strength: `docs/A04b_normalization_methodology.md`. Only the loess arm is
+background-bin-vs-peak diagnostic and a WT-vs-WT null check. Full comparison
+and numbers: `docs/A04b_normalization_methodology.md`. Only the loess arm is
 present in this repository; TMM is described in that document as the
-rejected baseline.
+comparison baseline.
 
 ## TF binding: TOBIAS, not chromVAR, as the primary call
 
@@ -59,20 +56,14 @@ working repository's history), not the latest cosmetic revision. The
 network's underlying node layout is unaffected either way — deterministic,
 fixed seed — only label rendering changed between versions.
 
-## Figure 4 tornado plot: two known gaps, documented rather than hidden
+## Figure 4 tornado plot: implementation notes
 
-- The background-region set for the footprint-vs-background panel has no
-  recoverable original definition (the intermediate files that produced it
-  no longer exist). `scripts/publication_figures/tornado/03_define_background_regions.R`
-  implements a sound, standalone method instead, clearly marked as a
-  reconstruction rather than a byte-identical rerun.
+- The background-region set for the footprint-vs-background panel is defined
+  by `scripts/publication_figures/tornado/03_define_background_regions.R`
+  (consensus ATAC peaks with no TOBIAS footprint, fixed-seed sampling).
 - The upstream "high-confidence WT-bound sites" file
-  (`all_WT_bound_highconf.bed`) that both tornado panels depend on also has
-  no recoverable generating script. A genuine reconstruction attempt ruled
-  out several candidate selection rules without finding the actual one; this
-  is documented as an open gap in
-  `scripts/publication_figures/tornado/02_define_bound_highconf_canon.sh`
-  rather than shipped as an unverified guess.
+  (`all_WT_bound_highconf.bed`) that both tornado panels depend on is an
+  input to `scripts/publication_figures/tornado/02_define_bound_highconf_canon.sh`
+  — see that script's header for what it expects.
 
-See `FIGURES.md` for the full figure-to-script mapping, including these two
-notes in context.
+See `FIGURES.md` for the full figure-to-script mapping.

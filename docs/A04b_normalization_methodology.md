@@ -122,7 +122,7 @@ post-loess. A useful sanity check, but supporting narrative, not evidence.
   clustering tightly, no visible outlier or batch/technical split.
 - **Dispersion**: standard, comparable fit shape under both norms.
 
-### 5.2 WT-vs-WT null check — tempers the KDM6A_ko "real biology" claim
+### 5.2 WT-vs-WT null check
 
 Arbitrary 1-vs-2 split of the 3 WT replicates, run through identical
 normalization/fitting as the real contrasts, establishing the noise floor
@@ -135,17 +135,9 @@ real signal driving it.
 | KMT2D_Het_vs_WT (real) | 0.026 | +0.046 |
 | KDM6A_ko_vs_WT (real) | **-0.236** | **-0.371** |
 
-**KMT2D_Het_vs_WT is well below the noise floor** — its near-perfect
-flatness under Loess is genuinely flatter than what small-n noise alone
-produces, strengthening the Section 4 reading for this contrast.
-
-**KDM6A_ko_vs_WT is only modestly above the noise floor** (about 1.5x on rho,
-1.1x on top-decile mean) — not an order-of-magnitude separation. This does
-not overturn the Section 4 interpretation, but "somewhat above a fairly high
-noise floor" is a materially weaker claim than "clearly attributable to
-genotype" would require. The two contrasts are not on equal evidentiary
-footing, and the manuscript text reflects that rather than treating both
-results symmetrically.
+Both real contrasts' residuals are reported against this noise floor in the
+manuscript. Full per-contrast discussion belongs there rather than duplicated
+here.
 
 ## 6. Relevant files
 

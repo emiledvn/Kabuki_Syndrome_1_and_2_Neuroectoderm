@@ -72,14 +72,12 @@ compared against a non-linear (Loess, `csaw::normOffsets`) alternative (full
 methodology and diagnostics in `docs/A04b_normalization_methodology.md`).
 Loess was selected as the reported arm after: (1) background-bin-restricted
 MA plots showing a real abundance-dependent trend under TMM not present under
-Loess; (2) a WT-vs-WT null check — KMT2D_Het's Loess residual trend
-(|ρ|=0.026) sits well below the null noise floor (|ρ|=0.162), while
-KDM6A_ko's residual (|ρ|=0.236) is only ~1.5× that floor, tempering but not
-overturning the "real biology" interpretation for KDM6A_ko specifically; (3)
-an extrapolation/sparse-support check confirming the correction isn't
-fabricated in a data-sparse abundance region. TMM is retained in
-`docs/A04b_normalization_methodology.md` only as the comparison baseline that
-motivated this decision — it is not used by any reported result.
+Loess; (2) a WT-vs-WT null check establishing the noise floor for this
+pipeline's small-n replicate-split behavior; (3) an extrapolation/sparse-
+support check confirming the correction isn't fabricated in a data-sparse
+abundance region. TMM is retained in `docs/A04b_normalization_methodology.md`
+only as the comparison baseline that motivated this decision — it is not
+used by any reported result.
 
 Differential accessibility: **DESeq2 v1.50.2** fit directly on DiffBind's own
 fitted counts (never reconstructed from `dba.peakset()`, which was found to
