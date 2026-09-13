@@ -1,0 +1,10 @@
+sample,fastq_1,fastq_2,strandedness
+WT_1_RNA,data/fastq_rna/WT_1_RNA_R1.fastq.gz,data/fastq_rna/WT_1_RNA_R2.fastq.gz,auto
+WT_2_RNA,data/fastq_rna/WT_2_RNA_R1.fastq.gz,data/fastq_rna/WT_2_RNA_R2.fastq.gz,auto
+WT_3_RNA,data/fastq_rna/WT_3_RNA_R1.fastq.gz,data/fastq_rna/WT_3_RNA_R2.fastq.gz,auto
+KMT2D_Het_1_RNA,data/fastq_rna/KMT2D_Het_1_RNA_R1.fastq.gz,data/fastq_rna/KMT2D_Het_1_RNA_R2.fastq.gz,auto
+KMT2D_Het_2_RNA,data/fastq_rna/KMT2D_Het_2_RNA_R1.fastq.gz,data/fastq_rna/KMT2D_Het_2_RNA_R2.fastq.gz,auto
+KMT2D_Het_3_RNA,data/fastq_rna/KMT2D_Het_3_RNA_R1.fastq.gz,data/fastq_rna/KMT2D_Het_3_RNA_R2.fastq.gz,auto
+KDM6A_ko_1_RNA,data/fastq_rna/KDM6A_ko_1_RNA_R1.fastq.gz,data/fastq_rna/KDM6A_ko_1_RNA_R2.fastq.gz,auto
+KDM6A_ko_2_RNA,data/fastq_rna/KDM6A_ko_2_RNA_R1.fastq.gz,data/fastq_rna/KDM6A_ko_2_RNA_R2.fastq.gz,auto
+KDM6A_ko_3_RNA,data/fastq_rna/KDM6A_ko_3_RNA_R1.fastq.gz,data/fastq_rna/KDM6A_ko_3_RNA_R2.fastq.gz,auto

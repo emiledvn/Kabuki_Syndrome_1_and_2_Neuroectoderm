@@ -1,0 +1,10 @@
+sample,fastq_1,fastq_2,replicate
+WT_1_ATAC,data/fastq_atac/WT_1_ATAC_R1.fastq.gz,data/fastq_atac/WT_1_ATAC_R2.fastq.gz,1
+WT_2_ATAC,data/fastq_atac/WT_2_ATAC_R1.fastq.gz,data/fastq_atac/WT_2_ATAC_R2.fastq.gz,1
+WT_3_ATAC,data/fastq_atac/WT_3_ATAC_R1.fastq.gz,data/fastq_atac/WT_3_ATAC_R2.fastq.gz,1
+KMT2D_Het_1_ATAC,data/fastq_atac/KMT2D_Het_1_ATAC_R1.fastq.gz,data/fastq_atac/KMT2D_Het_1_ATAC_R2.fastq.gz,1
+KMT2D_Het_2_ATAC,data/fastq_atac/KMT2D_Het_2_ATAC_R1.fastq.gz,data/fastq_atac/KMT2D_Het_2_ATAC_R2.fastq.gz,1
+KMT2D_Het_3_ATAC,data/fastq_atac/KMT2D_Het_3_ATAC_R1.fastq.gz,data/fastq_atac/KMT2D_Het_3_ATAC_R2.fastq.gz,1
+KDM6A_ko_1_ATAC,data/fastq_atac/KDM6A_ko_1_ATAC_R1.fastq.gz,data/fastq_atac/KDM6A_ko_1_ATAC_R2.fastq.gz,1
+KDM6A_ko_2_ATAC,data/fastq_atac/KDM6A_ko_2_ATAC_R1.fastq.gz,data/fastq_atac/KDM6A_ko_2_ATAC_R2.fastq.gz,1
+KDM6A_ko_3_ATAC,data/fastq_atac/KDM6A_ko_3_ATAC_R1.fastq.gz,data/fastq_atac/KDM6A_ko_3_ATAC_R2.fastq.gz,1

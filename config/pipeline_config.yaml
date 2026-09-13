@@ -1,0 +1,196 @@
+# KS1_2_Neuro-ectoderm — single source of truth for reference paths and resource
+# caps (statistical thresholds get added here once the downstream R scripts are
+# written). Every script reads this file; never hand-edit a path/value inside an
+# individual script instead.
+
+reference:
+  fasta: data/reference/GRCh38.primary_assembly.genome.fa.gz
+  gtf: data/reference/gencode.v47.annotation.gtf.gz
+  source: "GENCODE release 47, GRCh38 primary assembly (ENSG gene IDs, chr-prefixed hg38 coordinates)"
+  fasta_url: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_47/GRCh38.primary_assembly.genome.fa.gz
+  gtf_url: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_47/gencode.v47.annotation.gtf.gz
+  fasta_md5: 0c33152bea6f09b89fb5e3f89558771e
+  gtf_md5: 2459f58694fd330740627a8c371fed6a
+  effective_genome_size: 2700000000   # human, used for MACS peak calling (nf-core/atacseq + A02)
+  tss_bed: data/reference/TSS_GRCh38_gencode47.bed   # A08 promoter/distal DAR split only -- NOT used for TSS enrichment QC (see qc_refseq_tss_bed)
+  motifs_meme: data/reference/motifs.meme             # A06 TOBIAS BINDetect
+  # QC-only reference, deliberately separate from the GENCODE reference used everywhere
+  # else in the pipeline. ENCODE's published TSS enrichment cutoffs are calibrated
+  # against RefSeq's curated TSS set specifically (see METHODS_NOTES.md); GENCODE's
+  # much larger comprehensive TSS set is not numerically comparable to those cutoffs.
+  qc_refseq_tss_bed: data/reference/RefSeq_GRCh38_TSS.bed
+  qc_refseq_tss_source_url: https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/refGene.txt.gz
+  qc_refseq_tss_source_md5: 3a283252cd9d1902ad15edeaf878cf6c   # of the raw refGene.txt.gz download
+  # R07 (nf-core/rnavar): GATK BQSR known-sites bundle, used ONLY for BaseRecalibrator/
+  # ApplyBQSR in the eSNP-Karyotyping arm -- not used anywhere else in the pipeline.
+  # Broad's Homo_sapiens_assembly38.fasta (these files' own build) includes ALT/decoy/HLA
+  # contigs our GENCODE primary-assembly FASTA doesn't; GATK matches known-sites contigs
+  # to the working sequence dictionary by name+length and ignores unmatched extras, so
+  # chr1-22/X/Y/M are expected to be compatible -- confirm on R07's first real run.
+  # No pre-vetted md5 available (unlike qc_refseq_tss_source_md5) -- R07 computes and
+  # logs the md5 of what it actually downloads; add it here afterward once confirmed.
+  gatk_dbsnp_vcf: data/reference/gatk_bundle/Homo_sapiens_assembly38.dbsnp138.vcf.gz
+  gatk_dbsnp_vcf_url: https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.gz
+  gatk_known_indels_vcf: data/reference/gatk_bundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
+  gatk_known_indels_vcf_url: https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
+  # R08: UCSC cytoBand -- used only to derive chromosome-arm (p/q) boundaries for BAF
+  # binning (centromere = midpoint of the two "acen"-stain bands per chromosome). Same
+  # download-derive-discard-raw pattern as qc_refseq_tss_bed above.
+  cytoband_url: https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz
+  chrom_arms_bed: data/reference/GRCh38_chrom_arms.bed
+
+resources:
+  # "Be a good citizen" ceiling: host has 2TB RAM / 196 cores available.
+  max_cpus: 64
+  max_memory: 512.GB
+  max_time: 240.h
+  # NFS is the actual bottleneck on this server, not compute -- these bound how many
+  # processes hit it at once. Dialed back up (2026-07-17): server confirmed idle
+  # (load ~4, TOBIAS using ~2 cores only) and NFS RTT sampled clean (read ~10.7ms,
+  # write ~73.6ms, both well under the 200ms wait_for_io_headroom.sh threshold).
+  # max_cpus (64) / align_cpus (20) already bound the real concurrency ceiling
+  # regardless of these two, so there's no overshoot risk in raising them.
+  queue_size: 20        # global cap on simultaneously running Nextflow processes
+  align_max_forks: 6   # cap on concurrent alignment tasks specifically (BWA_MEM / STAR_ALIGN)
+  align_cpus: 20        # cpus given to each alignment task (fine to keep high -- only one task runs at a time)
+  macs_max_parallel: 3  # A02: samples processed concurrently
+  # A06g: per-replicate ATACorrect/FootprintScores run concurrently, each still
+  # pinned at tobias_cores=4 (never raised -- see tobias_cores note below).
+  # 3 concurrent x 4 cores = 12 cores, same concurrency-knob-not-per-job-core-count
+  # pattern as macs_max_parallel above; host load was ~45/192 when this was set.
+  tobias_replicate_max_parallel: 3
+  bigwig_threads: 20     # A02: threads per bamCoverage call (3 * 20 = 60, under max_cpus)
+  # A03 only recomputes FRiP/peak-count itself now (everything else -- read depth,
+  # duplication, mito fraction, TSS enrichment -- is read from ataqv's own JSON,
+  # which nf-core/atacseq already computes as part of A01). That's light work
+  # (one bedtools intersect per sample), hence parallel by default now.
+  qc_max_parallel: 4      # A03: samples processed concurrently
+  network_build_parallel: 8  # AR06: concurrent per-TF TOBIAS overview.txt reads (I/O-bound file parsing, not compute-bound -- kept well under max_cpus/queue_size, same conservative-default convention as qc_max_parallel/macs_max_parallel)
+  min_free_disk_gb: 500     # disk_watchdog.sh: emergency-stop all ks1_2_* screens below this
+  # R07 only -- deliberately separate from max_cpus/max_memory/queue_size/align_*
+  # above so R01/A01/A04/etc.'s already-conservative shared settings are untouched.
+  # Mirrors CUVERTINO_Reanalysis's 03_run_nfcore_rna.sh, which ran nf-core/rnaseq
+  # noticeably faster with a RAM-backed (/dev/shm) Nextflow work dir + higher
+  # concurrency than this project's own R01 used -- since work-dir I/O (staged
+  # reads, sorted/indexed BAMs, per-task scratch) is most of a run's actual NFS
+  # traffic, moving it off NFS entirely removes the reason to keep queue_size low
+  # in the first place, not just the reason to keep cpus low.
+  # NOTE on max_cpus and aggregate usage: Nextflow's local executor (no
+  # executor.cpus set here, same as CUVERTINO's) does NOT sum-track cpu requests
+  # across concurrently running processes -- max_cpus only clips a SINGLE
+  # process's own request if that one request exceeds it (20 < either number
+  # below, so it never actually engages as a brake). The real ceiling on
+  # simultaneous host CPU usage is align_max_forks x align_cpus. Raised to 180 to
+  # match that peak honestly rather than leave a stale/misleading lower number.
+  rnavar_max_cpus: 180
+  rnavar_max_memory: 900.GB
+  rnavar_queue_size: 16          # matches CUVERTINO's value -- worked well there
+  # Only 9 RNA samples total -- forks=9 means every sample's STAR_ALIGN can run
+  # at once with no artificial cap below what the DAG could ever actually need.
+  # 9 x 20 = 180 concurrent threads peak (close to this host's 192 physical
+  # cores) -- acceptable given the RAM-backed work dir removes the original NFS-
+  # contention reason for capping lower, and host load was ~2-5 (of 192) when
+  # this was raised. Dial back down if other work on the host gets sluggish.
+  rnavar_align_max_forks: 9
+  rnavar_align_cpus: 20
+  rnavar_ram_workdir_min_free_gb: 200   # don't use /dev/shm below this much free -- same guard CUVERTINO uses
+  tobias_cores: 4           # A06: cores per TOBIAS ATACorrect/FootprintScores/BINDetect call -- DO NOT RAISE: cores=16 silently corrupted output (empty bigwig, no error) on 2026-07-17, see A06_screen_20260717_101042.log
+  tornado_cores: 16          # A08: cores per computeMatrix/plotHeatmap call
+
+nfcore:
+  atacseq_revision: 2.1.2   # confirmed latest stable as of 2026-07-15
+  rnaseq_revision: 3.26.0   # updated from the prior project's 3.14.0 pin; latest stable as of 2026-07-15
+  rnavar_revision: 1.3.0    # R07 eSNP-Karyotyping arm; confirmed latest stable as of 2026-08-13
+
+# Carried over from the prior ED26_001_ATAC_c/Narrow_allReads scripts. FDR/LFC here
+# are the values the original pipeline spec explicitly called out as something we'd
+# want to tune later -- change here, then rerun only the affected steps
+# (EXECUTE_PIPELINE.sh --from A04). qc_* values drive the PASS/WARN/FAIL columns in
+# the A03 QC table only -- not drawn as cutoff lines on any plot, since a sample
+# running under FRiP's nominal value and one running under TSS enrichment's don't
+# carry the same weight, and a single-style threshold line would flatten that.
+thresholds:
+  fdr: 0.05                # shared significance cutoff: DESeq2 (RNA + ATAC), TOBIAS DAR extraction
+  # Single |log2FC| cutoff used identically for DEG/DAR calling, GO/GSEA gene-list
+  # construction, Venn/overlap sets, and TF-expression significance calls, across
+  # both RNA (R02/R04) and ATAC (A04f/A05/A09/AR01/AR03). Previously split into a
+  # "relaxed" (0.58) / "strict" (1) two-tier system that, on inspection, was never
+  # applied consistently (RNA's own GO gene lists already used only the strict tier;
+  # ATAC's GAINED/LOST DAR definition used neither, filtering on FDR alone). Rather
+  # than invent a new number, collapsed to the single value the pipeline's own GO
+  # enrichment already relied on: |log2FC| > 1 (2-fold), the standard RNA-seq
+  # default and stricter than the abandoned 0.58 relaxed tier.
+  lfc_threshold: 1
+  min_edge_distance: 500      # A02/A06: drop peaks within this many bp of a contig end
+  min_peaks_for_bindetect: 500 # A06: warn if a BINDetect peak set is smaller than this
+  qc_min_usable_reads: 20000000  # A03 QC table flag: usable (post-filter) read count
+  qc_min_frip: 0.2               # A03 QC table flag
+  qc_min_peaks: 100000            # A03 QC table flag
+  # Real ENCODE NRF/PBC1/PBC2 are not provided by ataqv (checked against a real
+  # ataqv JSON from the prior ED26_001_ATAC_c project -- no such fields exist) and
+  # are not recomputed by hand either, so this is ataqv's duplicate_reads/total_reads
+  # ratio, not the formal NRF/PBC metric the name usually implies.
+  qc_max_duplicate_fraction: 0.3   # A03 QC table flag: ataqv duplicate_reads / total_reads
+  # ENCODE's own published cutoff table: <5 Concerning, 5-7 Acceptable, >7 Ideal.
+  # 5 is the Concerning/Acceptable boundary -- matches ENCODE exactly, not a borrowed
+  # value. Only valid against the ENCODE-exact RefSeq TSS score A03 computes itself
+  # (see README "Methods notes" / A03_QC_ATAC.sh) -- NOT comparable to ataqv's own
+  # tss_enrichment field, which uses a different window and TSS annotation.
+  qc_min_tss_enrichment: 5
+  rna_min_total_counts: 10             # R02: pre-filter genes with < this many total counts across all samples
+  min_mean_expression: 10               # A07b: TF/gene must average > this many normalized counts to count as "expressed"
+  tobias_binding_pvalue: 0.05            # A07b: TOBIAS BINDetect differential-binding significance
+  # Lowered from 0.2 (2026-07-20): 0.2 sat at ~p99 of the actual |change|
+  # distribution in both contrasts (verified from bindetect_results.txt),
+  # i.e. only the single most extreme ~1% of TFs could ever pass -- far
+  # stricter than intended and the reason only 3 Concordant TFs came out of
+  # A07b's first real run. 0.1 sits at ~p90 in both contrasts (a standard
+  # "top decile of magnitude" bar) and is still a real magnitude cutoff, not
+  # just the pvalue threshold doing all the work.
+  tobias_binding_change: 0.1              # A07b: |binding score change| cutoff
+  # Commonly-cited bulk RNA-seq QC bar (>=70% uniquely mapped), not verified against
+  # a specific authoritative source the way the ATAC TSS enrichment threshold was --
+  # treat as a soft reference value like the others (WARN-only, not a hard gate).
+  rna_qc_min_unique_mapped_pct: 70
+  # R08 eSNP-Karyotyping (Weissbein et al. 2016 method): screening/QC thresholds, not
+  # a hypothesis test -- the method itself is threshold-based, not p-value-based.
+  esnp_min_depth: 20            # min AD-summed (ref+alt) depth at a het SNV to count it
+  esnp_min_snps_per_arm: 30     # min informative SNVs before an arm's mean BAF is reported at all
+  esnp_baf_deviation_flag: 0.15 # mean |BAF-0.5| beyond this, in all reps of one genotype and not WT, => flagged
+  esnp_min_genes_per_arm: 20    # R08 dosage panel: min genes before an arm's mean centered-VST is reported (acrocentric short arms have only a handful)
+
+# A04/A06 diffbind/counting steps are R/BiocParallel-heavy rather than Nextflow-heavy
+# (in-memory counting against already-indexed BAMs, not much concurrent NFS traffic);
+# kept as a separate cap so it can be tuned independently of the alignment-stage caps
+# above. 60 is under max_cpus (64) on purpose.
+diffbind:
+  cores: 60
+
+# Shared across ATAC (A04) and RNA (R02/R04) so the same two genotype comparisons are
+# run identically on both arms -- one place to add/change a contrast.
+contrasts:
+  - name: KDM6A_ko_vs_WT
+    treatment: KDM6A_ko
+    reference: WT
+  - name: KMT2D_Het_vs_WT
+    treatment: KMT2D_Het
+    reference: WT
+
+# AR13: Roadmap Epigenomics ChromHMM 18-state expanded model (core 5 marks +
+# H3K27ac -- distinguishes active vs weak/poised enhancer, unlike the 15-state
+# core model). No epigenome in Roadmap's 127-epigenome panel is iPSC-derived-
+# neuroectoderm-specific, so this project brackets D8 neuroectoderm with a
+# "before" (pluripotent) and "after" (neuronal lineage) reference epigenome
+# rather than picking one imperfect match. hg38lift mnemonics BEDs pulled
+# directly from the Roadmap file server -- same download-and-cache pattern as
+# the other reference/*_url entries above, no local rebuild.
+chromhmm:
+  local_dir: data/reference/chromhmm
+  n_states: 18
+  epigenomes:
+    - id: E003
+      label: "H1 hESC (pluripotent baseline)"
+      url: https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/core_K27ac/jointModel/final/E003_18_core_K27ac_hg38lift_mnemonics.bed.gz
+    - id: E007
+      label: "H1-derived Neuronal Progenitor Cells"
+      url: https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/core_K27ac/jointModel/final/E007_18_core_K27ac_hg38lift_mnemonics.bed.gz
