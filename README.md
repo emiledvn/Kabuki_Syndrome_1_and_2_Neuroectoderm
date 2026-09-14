@@ -7,10 +7,7 @@ each represented by 3 independent clones. Two nf-core pipelines (RNA-seq,
 ATAC-seq) feed a shared set of downstream differential expression/accessibility,
 transcription-factor footprinting (TOBIAS), and RNA–ATAC integration steps.
 
-This is the companion code repository for the associated manuscript. It is a
-curated sibling of the lab's internal working repository: exploratory branches
-and superseded analyses have been pruned (see `docs/decisions.md`), but nothing
-about the reported results has been changed.
+We also developed a Network approach Based on TOBIAS and RNA-seq
 
 ## Reproducibility
 
