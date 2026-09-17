@@ -1,4 +1,4 @@
-# Kabuki Syndrome (KMT2D/KDM6A) Neuroectoderm Multi-omics
+# Kabuki Syndrome (KMT2D/KDM6A) Neuroectoderm 
 
 RNA-seq and ATAC-seq analysis of Day 8 neuroectoderm differentiation, comparing
 wild-type (WT) against two independent Kabuki-syndrome-model genotypes:
