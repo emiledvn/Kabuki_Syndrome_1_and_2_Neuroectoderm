@@ -148,13 +148,54 @@ edge per (TF, gene) pair and tiered by independent corroborating evidence.
 RNA evidence is a corroborating tier on top of this ATAC/motif-derived
 backbone, not the signal that defines an edge.
 
-## Software environment and reproducibility
+## Pipeline management and reproducibility
 
-All R analyses ran in a single pinned conda environment
-(`environments/ks_1_2_r.yml`, re-exported after every package addition).
-Nextflow-based preprocessing (nf-core/rnaseq, nf-core/atacseq) used
-Apptainer-containerized processes (Apptainer v1.4.5, Nextflow v25.10.2).
-Every analysis script is self-checkpointing and config-driven
-(`config/pipeline_config.yaml` is the single source of truth for all
-thresholds and reference paths — no threshold is hand-edited inside an
-individual script).
+The full analysis is implemented as a single version-controlled pipeline
+rather than a set of interactive scripts, orchestrated end-to-end by one
+driver (`scripts/EXECUTE_PIPELINE.sh`) that runs all steps in dependency
+order across five stages: ATAC-seq processing, RNA-seq processing,
+RNA–ATAC integration, genotype/allele validation, and manuscript figure
+assembly. Every step is self-checkpointing (skipped if its declared output
+already exists), so an interrupted run resumes rather than restarts, and any
+individual step or downstream sub-chain can be re-run in isolation (e.g.
+after a threshold change) via `--from`/`--only` flags without re-executing
+the full pipeline. All statistical thresholds, reference-genome paths,
+genotype contrasts, and compute-resource limits are centralized in a single
+config file (`config/pipeline_config.yaml`) that every script reads — no
+threshold or path is hand-edited inside an individual script.
+
+Software is version-pinned throughout. nf-core pipelines (rnaseq v3.26.0,
+atacseq v2.1.2, rnavar v1.3.0) ran under Nextflow v25.10.2 with
+Apptainer v1.4.5-containerized processes. Custom R and Python analyses ran
+in five dedicated conda environments, each specified in a checked-in
+`environments/*.yml` file re-exported after every package addition and
+verified against the tool versions actually present at runtime
+(`environments/00_Environment_setup_versions.sh`, logged to
+`results/Session_info/`). The reference genome/annotation (GENCODE release
+47, GRCh38) and other externally-sourced references (RefSeq TSS
+coordinates, GATK known-sites bundles, Roadmap ChromHMM segmentations) were
+fetched from their canonical source URLs, recorded in
+`config/pipeline_config.yaml` alongside MD5 checksums where feasible.
+Stochastic procedures (the baseMean-binned cross-genotype permutation test;
+tornado-plot background-region sampling) used fixed random seeds.
+
+Every analytical choice made among multiple candidate methods (loess vs.
+TMM accessibility normalization; TOBIAS vs. chromVAR TF-binding calls;
+CollecTRI vs. ANANSE network inference) is documented alongside the
+rejected alternative and the diagnostic that motivated the decision
+(`docs/decisions.md`, `docs/A04b_normalization_methodology.md`), and every
+manuscript panel is mapped to the exact script and parameter version that
+produced it (`FIGURES.md`), independent of the manuscript's own figure
+numbering.
+
+### Reproducing the analysis
+
+The companion repository (see Code availability) contains everything needed
+to reproduce all analyses from raw FASTQs: pinned environment
+specifications, the config file, and the orchestration script. In brief:
+create the five conda environments from `environments/*.yml`, place raw
+FASTQs under `data/fastq_rna/` and `data/fastq_atac/` matching
+`input/*_samplesheet.csv`, and run `bash scripts/EXECUTE_PIPELINE.sh` (see
+the repository README for the full walkthrough and for the one manual
+external step, a public ChIP re-analysis feeding the Figure 4 tornado
+plot).
