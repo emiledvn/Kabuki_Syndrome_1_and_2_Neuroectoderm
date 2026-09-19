@@ -1,11 +1,11 @@
 # ATAC-seq Differential Accessibility Normalization: Methodology and Diagnostics
 
 Covers the KDM6A_ko_vs_WT / KMT2D_Het_vs_WT csaw/DESeq2 differential-accessibility
-pipeline (`scripts/atac/A04b_Csaw_Loess_Norm.R`, `scripts/atac/A05_DESeq2.R`). The
-loess arm documented here is the one used throughout this repository; the TMM
-comparison arm referenced below (`A04_Diffbind_Compare_NORMS.R`) is not included
-in this repository — it is described here only as the baseline that motivated
-the loess decision.
+pipeline (`scripts/atac/A04_Diffbind_Compare_NORMS.R`, `scripts/atac/A04b_Csaw_Loess_Norm.R`,
+`scripts/atac/A05_DESeq2.R`). The loess arm documented here is the one used
+throughout this repository; the TMM comparison arm (`A04_Diffbind_Compare_NORMS.R`,
+which also builds the DiffBind consensus peak set both arms share) is described
+here only as the baseline that motivated the loess decision.
 
 ## 1. Background
 
@@ -141,6 +141,9 @@ here.
 
 ## 6. Relevant files
 
+- `scripts/atac/A04_Diffbind_Compare_NORMS.R` — builds the DiffBind consensus peak
+  set and the Default/Background/Csaw-TMM comparison arms (TMM = the baseline
+  that motivated the loess decision; not used by any reported result)
 - `scripts/atac/A04b_Csaw_Loess_Norm.R` — loess normalization arm (used)
 - `scripts/atac/A04f_Loess_DAR_BED.R` — DAR BED export from the loess arm
 - `scripts/atac/A05_DESeq2.R` — DESeq2 fit from DiffBind's own fitted counts

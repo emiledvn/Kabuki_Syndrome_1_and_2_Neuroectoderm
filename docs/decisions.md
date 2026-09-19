@@ -4,6 +4,18 @@ This repository contains only the single analysis path actually used for the
 reported results. Where multiple methods were genuinely evaluated, this page
 records which one was used and why, and where the full comparison lives.
 
+## Consensus peak set and TMM comparison script: restored, not excluded
+
+`scripts/atac/A04_Diffbind_Compare_NORMS.R` — which builds the DiffBind
+consensus peak set from the per-sample MACS3 peaks and runs the
+Default/Background/Csaw-TMM comparison arms — was missed by the initial
+curation pass and absent from this repository even though `A04b`'s loess
+arm (below) depends directly on its `Csaw_Norm/diffbind_analyzed.rds`
+output. Unlike the genuinely-superseded arms documented elsewhere on this
+page, this script is a live, still-necessary dependency, not a rejected
+alternative; it has been added back to `scripts/atac/` and wired into
+`EXECUTE_PIPELINE.sh` ahead of `A04b`.
+
 ## ATAC-seq normalization: loess, not TMM
 
 Standard TMM normalization produced opposite-direction, strongly asymmetric

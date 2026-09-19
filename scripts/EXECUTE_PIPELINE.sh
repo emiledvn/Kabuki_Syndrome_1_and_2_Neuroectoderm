@@ -46,6 +46,7 @@ declare -A STEP_CMD=(
     [A01]="bash scripts/atac/A01_RUN_nfcore_ATAC.sh"
     [A02]="bash scripts/atac/A02_MACS3_narrow.sh"
     [A03]="bash scripts/atac/A03_QC_ATAC.sh"
+    [A04]="${RSCRIPT_KS12} scripts/atac/A04_Diffbind_Compare_NORMS.R"
     [A04b]="${RSCRIPT_KS12} scripts/atac/A04b_Csaw_Loess_Norm.R"
     [A04f]="${RSCRIPT_KS12} scripts/atac/A04f_Loess_DAR_BED.R"
     [A05]="${RSCRIPT_KS12} scripts/atac/A05_DESeq2.R"
@@ -81,6 +82,9 @@ declare -A STEP_CMD=(
     [AR10c]="${RSCRIPT_KS12} scripts/genotyping/AR10c_Sane_Mutated_Panel.R"
     [AR07_pub]="${RSCRIPT_KS12} scripts/publication_figures/AR07_Publication_Figures.R"
 )
+# A04 builds the DiffBind consensus peak set + Default/Background/Csaw-TMM
+# comparison arms; A04b's loess arm reads A04's Csaw_Norm/diffbind_analyzed.rds
+# directly, so A04 must run before A04b.
 # AR02 reads AR04's GO table (AR04_GO_venn4_intersections.csv) -- AR04 (and
 # AR01, which AR04 itself needs) must run before AR02, not after.
 # R07 (eSNP-Karyotyping's variant-calling arm) is independent of the DESeq2 arm --
@@ -95,7 +99,7 @@ declare -A STEP_CMD=(
 # STEP_ORDER: 01_fetch_akiyama_chip.md is a manual/external ChIP-realignment
 # step, so that whole chain is run by hand, in order, after this script
 # completes -- see scripts/publication_figures/tornado/README.md.
-STEP_ORDER=(00 A01 A02 A03 A04b A04f A05 A06 A07b A08 A09 R01 R07 R02 R03 R04 R05 R08 AR01 AR11 AR06b AR11d AR04 AR05 AR07b AR02 AR03 R06 AR10_KMT2D AR10_KDM6A AR10c AR07_pub)
+STEP_ORDER=(00 A01 A02 A03 A04 A04b A04f A05 A06 A07b A08 A09 R01 R07 R02 R03 R04 R05 R08 AR01 AR11 AR06b AR11d AR04 AR05 AR07b AR02 AR03 R06 AR10_KMT2D AR10_KDM6A AR10c AR07_pub)
 
 FROM=""
 ONLY=""
