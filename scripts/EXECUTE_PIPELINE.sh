@@ -66,10 +66,23 @@ declare -A STEP_CMD=(
     # repo's AR06_TF_Regulatory_Network.R (that script's own network
     # visualization was dropped, superseded by the CollecTRI/AR11 network
     # actually used in the paper -- but this edge-table computation is a
-    # separate, still-used dependency of AR11d). Needs A06 (TOBIAS) + R02
-    # (DESeq2), both already run earlier above.
+    # separate, still-used dependency of AR11b/AR11c/AR11d). Needs A06
+    # (TOBIAS) + R02 (DESeq2), both already run earlier above. Also writes
+    # AR06_graph_direct_site_<contrast>.rds, the igraph object AR11b/AR11c
+    # read directly.
     [AR06b]="${RSCRIPT_KS12} scripts/integration/AR06b_Direct_Site_Edges.R"
+    # AR11b intersects AR06b's edges with CollecTRI ("orthogonally supported"
+    # edges + the agrees_with_diffbind_call flag); AR11c finds the
+    # high-confidence AR06b edges whose TF is CollecTRI-covered but this pair
+    # isn't ("candidate" edges). Both must run after AR06b and AR11 (CollecTRI
+    # fetch), and before AR11d, which reads both of their output CSVs.
+    [AR11b]="${RSCRIPT_KS12} scripts/integration/AR11b_CollecTRI_curated_network.R"
+    [AR11c]="${RSCRIPT_KS12} scripts/integration/AR11c_CollecTRI_candidate_uncurated_links.R"
     [AR11d]="${RSCRIPT_KS12} scripts/integration/AR11d_CollecTRI_dense_with_candidates.R"
+    # AR11l re-lays out AR11d's edge/node TSVs with a force-simulation layout
+    # (the "forceSim_v14" figure actually used in the manuscript) -- needs
+    # AR11d's exported TSVs, so it must run after it.
+    [AR11l]="${RSCRIPT_KS12} scripts/integration/AR11l_ForceSim_network.R"
     [AR04]="${RSCRIPT_KS12} scripts/integration/AR04_FourWay_Venn.R"
     [AR05]="${RSCRIPT_KS12} scripts/integration/AR05_ATAC_RNA_Concordant_Heatmap.R"
     [AR07b]="${RSCRIPT_KS12} scripts/integration/AR07b_save_103gene_GO_table.R"
@@ -99,7 +112,7 @@ declare -A STEP_CMD=(
 # STEP_ORDER: 01_fetch_akiyama_chip.md is a manual/external ChIP-realignment
 # step, so that whole chain is run by hand, in order, after this script
 # completes -- see scripts/publication_figures/tornado/README.md.
-STEP_ORDER=(00 A01 A02 A03 A04 A04b A04f A05 A06 A07b A08 A09 R01 R07 R02 R03 R04 R05 R08 AR01 AR11 AR06b AR11d AR04 AR05 AR07b AR02 AR03 R06 AR10_KMT2D AR10_KDM6A AR10c AR07_pub)
+STEP_ORDER=(00 A01 A02 A03 A04 A04b A04f A05 A06 A07b A08 A09 R01 R07 R02 R03 R04 R05 R08 AR01 AR11 AR06b AR11b AR11c AR11d AR11l AR04 AR05 AR07b AR02 AR03 R06 AR10_KMT2D AR10_KDM6A AR10c AR07_pub)
 
 FROM=""
 ONLY=""

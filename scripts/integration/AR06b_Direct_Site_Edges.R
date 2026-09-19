@@ -26,6 +26,12 @@
 #   scripts/atac/A07b_TOBIAS_DOWNSTREAM.R    -- results/tables/A07b_concordant_tfs.csv
 #                                              (optional, cross-check only)
 #
+# Also writes AR06_graph_direct_site_<contrast>.rds (an igraph object, same
+# edge set as the CSV) -- AR11b_CollecTRI_curated_network.R and
+# AR11c_CollecTRI_candidate_uncurated_links.R read this directly; the
+# original AR06_TF_Regulatory_Network.R produced the same-shaped file, and
+# this keeps that interface intact for the two scripts downstream of it.
+#
 # Env: ks_1_2_r. Run from the repo root: Rscript scripts/integration/AR06b_Direct_Site_Edges.R
 # Self-checkpointing: skips if every contrast's output CSV already exists.
 
@@ -36,6 +42,7 @@ suppressPackageStartupMessages({
   library(parallel)
   library(yaml)
   library(rGREAT)
+  library(igraph)
 })
 
 CONFIG <- "config/pipeline_config.yaml"
@@ -426,8 +433,17 @@ for (ct_name in names(edges_by_contrast_direct)) {
                                     regulatory_mode, confidence_tier,
                                     tf_target_rank, n_targets_for_tf, gene_regulator_rank, n_regulators_for_gene)
   saveRDS(ed_out, file.path(RDS_DIR, sprintf("AR06_direct_site_edges_full_%s.rds", ct_name)))
-  write_csv(ed_out %>% filter(confidence_tier != "Low"),
-            file.path(TABLES_DIR, sprintf("AR06_direct_site_edges_%s.csv", ct_name)))
+  ed_reported <- ed_out %>% filter(confidence_tier != "Low")
+  write_csv(ed_reported, file.path(TABLES_DIR, sprintf("AR06_direct_site_edges_%s.csv", ct_name)))
+
+  # igraph edge-list object, same (Low-tier-excluded) edge set as the CSV
+  # above -- AR11b_CollecTRI_curated_network.R and
+  # AR11c_CollecTRI_candidate_uncurated_links.R read this directly
+  # (graph_from_data_frame() takes its first two columns as the edge
+  # endpoints, so TF/SYMBOL are moved to the front here even though the CSV
+  # keeps its own column order).
+  g <- graph_from_data_frame(ed_reported %>% dplyr::select(from = TF, to = SYMBOL, everything()), directed = TRUE)
+  saveRDS(g, file.path(RDS_DIR, sprintf("AR06_graph_direct_site_%s.rds", ct_name)))
 }
 
 cat("\n[AR06b] Done.\n")

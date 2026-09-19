@@ -40,7 +40,7 @@ asset, not a pipeline output.
 | Panel | Script | Output folder |
 |---|---|---|
 | TOBIAS binding heatmaps + volcano plots (both contrasts) | `scripts/atac/A07b_TOBIAS_DOWNSTREAM.R` | `results/atac/` |
-| CollecTRI TF regulatory network (both contrasts, force-simulation layout) | `scripts/integration/AR06b_Direct_Site_Edges.R` (TF→peak→gene edge table, extracted from an otherwise-superseded script — see `docs/decisions.md`) → `AR11_CollecTRI_fetch_regulons.R` → `AR11d_CollecTRI_dense_with_candidates.R` → `AR11l_ForceSim_network.R` (uses `AR11_network_plot_helpers.R`) | `results/integration/` |
+| CollecTRI TF regulatory network (both contrasts, force-simulation layout) | `scripts/integration/AR06b_Direct_Site_Edges.R` (TF→peak→gene edge table, extracted from an otherwise-superseded script — see `docs/decisions.md`) → `AR11_CollecTRI_fetch_regulons.R` → `AR11b_CollecTRI_curated_network.R` (CollecTRI intersection: "orthogonally supported" edges) + `AR11c_CollecTRI_candidate_uncurated_links.R` (CollecTRI-covered-TF-but-uncurated-pair "candidate" edges) → `AR11d_CollecTRI_dense_with_candidates.R` → `AR11l_ForceSim_network.R` (uses `AR11_network_plot_helpers.R`) | `results/integration/` |
 | Tornado plot — both-contrast-significant TFs, footprint vs. background | `scripts/publication_figures/tornado/` (see that folder's own `README.md` for the run order; depends on a public ChIP reanalysis and public ENCODE tracks, fetched by `00_fetch_encode_tracks.sh` / documented in `01_fetch_akiyama_chip.md`) | `results/figures/tf_footprinting_network/` |
 | TOBIAS method schematic (`TOBIAS_NETWORK_ORGA.svg`) | *static asset* — hand-drawn diagram, not pipeline output | `results/figures/tf_footprinting_network/assets/` |
 

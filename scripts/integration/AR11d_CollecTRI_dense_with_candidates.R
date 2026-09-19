@@ -20,7 +20,7 @@
 # Self-checkpointing: skips entirely if the last contrast's output PDF exists.
 
 suppressPackageStartupMessages({ library(igraph); library(dplyr); library(readr); library(yaml) })
-source("scripts/AR11_network_plot_helpers.R")
+source("scripts/integration/AR11_network_plot_helpers.R")
 
 CONFIG <- "config/pipeline_config.yaml"
 if (!file.exists(CONFIG)) stop("[AR11d] ERROR: ", CONFIG, " not found -- run this script from the repo root.")
