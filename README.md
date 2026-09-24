@@ -13,11 +13,9 @@ We also developed a Network approach Based on TOBIAS and RNA-seq
 
 Every tool/package version is pinned (`environments/*.yml` conda
 environments, exact container/Nextflow versions, a specific GENCODE release
-with checksums), stochastic steps are seeded, and figure-generating scripts
-are pinned to the exact parameter version that produced the published panel
-(see `FIGURES.md`). This was a genuine best effort at full end-to-end
-reproducibility, not a guarantee — if you hit a discrepancy, please open an
-issue with your environment and command.
+with checksums), steps with a stochastic component are seeded, and scripts
+are pinned to the  parameter version used(see `FIGURES.md`). If you hit a 
+discrepancy, please open an issue with your environment and command.
 
 ## Repository layout
 
