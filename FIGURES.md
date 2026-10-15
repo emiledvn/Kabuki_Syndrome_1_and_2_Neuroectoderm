@@ -23,6 +23,7 @@ asset, not a pipeline output.
 |---|---|---|
 | Volcano plots (KDM6A_ko vs WT, KMT2D_Het vs WT), PCA, BMP/WNT signalling barplot, GO BP dotplot, patterning/lineage gene barplot | `scripts/publication_figures/AR07_Publication_Figures.R` | `results/figures/rna_transcriptional_phenotype/` |
 | Cross-genotype convergence scatter, up/down Venn diagrams | `scripts/rna/R04_RNA_Overlap.R` | `results/rna/` |
+| Main-text Figure 2 composite (shared-DEG Venns, both volcanoes, convergence scatter, GO dotplot; A4 layout) | `scripts/publication_figures/AR07b_Figure2_main_composite.R` | `results/Plots/` |
 | Genotype-effect summary panel | *static asset* — manuscript-assembly figure | `results/figures/rna_transcriptional_phenotype/assets/` |
 
 ## ATAC–RNA concordance (current manuscript: Figure 3)
